@@ -11,11 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: snyk/actions/setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Snyk auth
+        run: snyk auth $SNYK_TOKEN
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk Code test → SARIF
+      - name: Snyk Code → SARIF
         run: snyk code test --sarif > snyk-code.sarif
 
       - name: Upload SARIF
