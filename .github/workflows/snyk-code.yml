@@ -1,17 +1,24 @@
-name: "snyk code test"
-on: [push, pull_request]
+name: snyk code
+on: push
+
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: snyk/actions/setup@master
-      - name: Snyk Test
-        run: snyk code test --org=${{ secrets.SNYK_ORG }} --sarif > snyk-sarif2.json
-        continue-on-error: true
+      - uses: actions/checkout@v4
+
+      - uses: snyk/actions/setup@v4
         env:
-           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk Code test → SARIF
+        run: snyk code test --sarif > snyk-code.sarif
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: snyk-sarif2.json
+          sarif_file: snyk-code.sarif
